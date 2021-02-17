@@ -19,8 +19,8 @@ screen.blit(background, (0, 0))
 levels = [
 [
     "www    w",
-    "wUww wGw", 
-    "w    www"
+    "w ww wGw", 
+    "w U  www"
 ],
 [
     "      ww", 
@@ -97,6 +97,7 @@ def move_player(dsquare_x, dsquare_y, map):
                     map[row_num+dsquare_y][col_num+dsquare_x] = player
                     map[row_num][col_num] = None
                     player.move(dsquare_y*tile_size, dsquare_x*tile_size)
+            break
 
 while flag:
     for event in pygame.event.get():
