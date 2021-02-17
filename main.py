@@ -89,6 +89,7 @@ for row in sprite_map:
 print(player)
 
 def move_player(dsquare_x, dsquare_y, map):
+    flag = True
     for row_num, row in enumerate(map):
         for col_num, sqr in enumerate(row):
             if type(obj) == You:
@@ -97,6 +98,9 @@ def move_player(dsquare_x, dsquare_y, map):
                     map[row_num+dsquare_y][col_num+dsquare_x] = player
                     map[row_num][col_num] = None
                     player.move(dsquare_y*tile_size, dsquare_x*tile_size)
+                flag = False
+                break
+        if not flag:
             break
 
 while flag:
