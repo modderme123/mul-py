@@ -16,7 +16,6 @@ class generic_sprite(pygame.sprite.Sprite):
         self.images = [pygame.transform.scale(image,(scale,scale)) for image in self.images]
         self.animation_frame = 0
         #self.scale = scale
-        self.frame_count = 0
         sprite_group.add(self)
 
     def draw_sprite(self, x, y):
@@ -40,9 +39,7 @@ class generic_sprite(pygame.sprite.Sprite):
         self.image = self.images[math.floor(self.animation_frame)]
 
     def update(self):
-        self.frame_count += 1
-        if self.frame_count % 15 == 0:
-            self.nextframe()
+        self.nextframe()
 
 
 
@@ -88,6 +85,12 @@ class You(generic_sprite):
 
 class Goal(generic_sprite):
     
-    attributes = ['goal']
+    attributes = ['goal', 'flat']
     def __init__(self, screen, sprite_group, scale):
         super().__init__(["images/goal/flag1.png","images/goal/flag2.png"], screen, sprite_group, scale)
+
+class Boundary(generic_sprite):
+
+    attributes = []
+    def __init__(self,screen, sprite_group, scale):
+        super().__init__(["images/temp/logo.png"], screen, sprite_group, scale)
