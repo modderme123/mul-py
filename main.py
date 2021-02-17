@@ -86,8 +86,7 @@ def addSprite(level,char,x,y):
 sprites = pygame.sprite.Group()
 flag = True
 gamemode = "Moving"
-
-#sprite_map = draw_board(current_map)
+sprite_map = draw_board(current_map)
 
 def empty(obj):
     return obj == None or "flat" in obj.attributes
@@ -129,7 +128,10 @@ while flag:
                 if gamemode == "Moving":
                     move_player(0, 1, sprite_map)
             elif event.key == pygame.K_RETURN:
-                gamemode = "Typing"
+                if gamemode == "Moving":
+                    gamemode = "Typing"
+                elif gamemode == "Typing":
+                    gamemode = "Moving"
 
 
     screen.blit(background, (0, 0))
