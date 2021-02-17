@@ -16,6 +16,7 @@ class generic_sprite(pygame.sprite.Sprite):
         self.images = [pygame.transform.scale(image,(scale,scale)) for image in self.images]
         self.animation_frame = 0
         #self.scale = scale
+        self.frame_count = 0
         sprite_group.add(self)
 
     def draw_sprite(self, x, y):
@@ -39,7 +40,9 @@ class generic_sprite(pygame.sprite.Sprite):
         self.image = self.images[math.floor(self.animation_frame)]
 
     def update(self):
-        self.nextframe()
+        self.frame_count += 1
+        if self.frame_count % 15 == 0:
+            self.nextframe()
 
 
 
