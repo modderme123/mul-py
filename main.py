@@ -1,4 +1,5 @@
 import pygame
+from pygame import sprite
 from language_processing import *
 from sprites import *
 pygame.init()
@@ -6,7 +7,7 @@ from levels import *
 
 width = 1000
 height = 800
-tile_size = 90
+#tile_size = 90
 
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("MUL")
@@ -105,52 +106,25 @@ def addSprite(level,char,x,y):
     sprite.draw_sprite((x*tile_size)+mapoffset[0], (y*tile_size)+mapoffset[1])
     return sprite
 
-def empty(obj):
-    return obj == None or "flat" in obj.attributes
-
-def move_person(dsquare_x, dsquare_y, map, person):
-    flag = True
-    map_height = len(current_map)
-    map_width = len(current_map[0])
-    # For entities who can only appear once. 
-    # Person is something like You, Green, etc.
-    for row_num, row in enumerate(map):
-        for col_num, sqr in enumerate(row):
-            if type(sqr) == person:
-                if (0 <= row_num+dsquare_y < map_height and 
-                    0 <= col_num+dsquare_x < map_width and 
-                    (empty(map[row_num+dsquare_y][col_num+dsquare_x]) or
-                    ("pushable" in map[row_num+dsquare_y][col_num+dsquare_x].attributes and empty(map[row_num+2*dsquare_y][col_num+2*dsquare_x])))):
-    
-                    entity = map[row_num][col_num]
-                    tostandon = None
-                    if map[row_num+dsquare_y][col_num+dsquare_x] is not None:
-                        if "flat" in map[row_num+dsquare_y][col_num+dsquare_x].attributes:
-                            tostandon = map[row_num+dsquare_y][col_num+dsquare_x]
-                        elif "pushable" in map[row_num+dsquare_y][col_num+dsquare_x].attributes:
-                            map[row_num+dsquare_y][col_num+dsquare_x].move(dsquare_x*tile_size, dsquare_y*tile_size)
-                            tostandon = map[row_num+dsquare_y][col_num+dsquare_x].stop_standing()
-                            if map[row_num+2*dsquare_y][col_num+2*dsquare_x] is not None: # must be flat
-                                map[row_num+dsquare_y][col_num+dsquare_x].start_standing(map[row_num+2*dsquare_y][col_num+2*dsquare_x])
-                            map[row_num+2*dsquare_y][col_num+2*dsquare_x] = map[row_num+dsquare_y][col_num+dsquare_x]
-                    map[row_num+dsquare_y][col_num+dsquare_x] = entity
-                    map[row_num][col_num] = entity.stop_standing()
-                    entity.start_standing(tostandon)
-                    entity.move(dsquare_x*tile_size, dsquare_y*tile_size)
-                flag = False
-                break
-        if not flag:
-            break
-
-
-set_move_person(move_person) #TODO: make this not bad (move move_person into language processing)
 
 ### Player Typing ###
 gamemode = "Moving"
-typedphrase = []
+typedphrase = ""
 cursorlocation = 0
 
-legitcharacters = {} # fill with characters that are relevant to the language e.g. {pygame.K_a : "a"}
+legitcharacters = {
+    pygame.K_j : "j", 
+    pygame.K_o : "o", 
+    pygame.K_u : "u", 
+    pygame.K_h : "h", 
+    pygame.K_p : "p", 
+    pygame.K_m : "m", 
+    pygame.K_g : "g",
+    pygame.K_i : "i",
+    pygame.K_k : "k",
+    pygame.K_l : "l", 
+    pygame.K_n : "n"
+} 
 sprite_map = draw_board(current_map)
 
 while flag:
@@ -160,26 +134,26 @@ while flag:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RIGHT:
                 if gamemode == "Moving":
-                    move_person(1, 0, sprite_map, You)
+                    move_person(1, 0, sprite_map,tile_size, You)
                 elif gamemode == "Typing":
                     cursorlocation += 1
                     if cursorlocation>len(typedphrase):
                         cursorlocation = len(typedphrase)
             elif event.key == pygame.K_LEFT:
                 if gamemode == "Moving":
-                    move_person(-1, 0, sprite_map, You)
+                    move_person(-1, 0, sprite_map,tile_size, You)
                 elif gamemode == "Typing":
                     cursorlocation -= 1
                     if cursorlocation<0:
                         cursorlocation = 0
             elif event.key == pygame.K_UP:
                 if gamemode == "Moving":
-                    move_person(0, -1, sprite_map, You)
+                    move_person(0, -1, sprite_map,tile_size, You)
                 elif gamemode == "Typing":
                     cursorlocation = len(typedphrase)
             elif event.key == pygame.K_DOWN:
                 if gamemode == "Moving":
-                    move_person(0, 1, sprite_map, You)
+                    move_person(0, 1, sprite_map,tile_size, You)
                 elif gamemode == "Typing":
                     cursorlocation = 0
             elif event.key == pygame.K_RETURN:
@@ -189,13 +163,19 @@ while flag:
                     gamemode = "Moving"
                     #language_processing(sayphrase)
             elif event.key == pygame.K_r:
-                restart_level()
-            elif event.key == pygame.K_q:
-                parse_sentence("h pu m", sprite_map)
+                if gamemode == "Moving":
+                    restart_level()
+            # elif event.key == pygame.K_q:
+            #     parse_sentence(typedphrase, sprite_map)
+            #     parse_sentence("h pu m", sprite_map)
+            elif event.key == pygame.K_DELETE:
+                if cursorlocation>0:
+                    cursorlocation-=1
+                    typedphrase = typedphrase[:cursorlocation] + typedphrase[cursorlocation+1:]
             
             if gamemode=="Typing":
                 if event.key in legitcharacters:
-                    typedphrase.insert(cursorlocation,legitcharacters)
+                    typedphrase.insert(cursorlocation,legitcharacters[legitcharacters])
                     cursorlocation+=1
     
     screen.blit(background, (0, 0))

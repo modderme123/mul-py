@@ -126,7 +126,26 @@ class NPC(generic_sprite):
         super().__init__(image_names, screen, sprite_group, scale)
 
 class NPC_Green(NPC):
-
     attributes = ['orderable','green']
     def __init__(self, screen, sprite_group, scale):
         super().__init__(["images/green/green_1.png","images/green/green_2.png"], screen, sprite_group, scale)
+class NPC_Blue(NPC):
+    attributes = ['orderable','blue']
+    def __init__(self, screen, sprite_group, scale):
+        super().__init__(["images/blue/blue_1.png","images/blue/blue_2.png"], screen, sprite_group, scale)
+class NPC_Yellow(NPC):
+    attributes = ['orderable','yellow']
+    def __init__(self, screen, sprite_group, scale):
+        super().__init__(["images/yellow/yellow_1.png","images/yellow/yellow_2.png"], screen, sprite_group, scale)
+class NPC_Orange(NPC):
+    attributes = ['orderable','orange']
+    def __init__(self, screen, sprite_group, scale):
+        super().__init__(["images/orange/orange_1.png","images/orange/orange_2.png"], screen, sprite_group, scale)
+class NPC_Red(NPC):
+    attributes = ['orderable','red']
+    def __init__(self, screen, sprite_group, scale):
+        super().__init__(["images/red/red_1.png","images/red/red_2.png"], screen, sprite_group, scale)
+class NPC_Purple(NPC):
+    attributes = ['orderable','purple']
+    def __init__(self, screen, sprite_group, scale):
+        super().__init__(["images/purple/purple_1.png","images/purple/purple_2.png"], screen, sprite_group, scale)

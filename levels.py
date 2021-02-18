@@ -37,17 +37,38 @@ levels = [
     "wwwwwwwwww"
 ],
 [
-    "wwwwwwwwww",
-    "w        w",
-    "w        w", 
-    "wU    ] Gw", 
-    "w      www",
-    "wwwwwwwwww"
-]
+    "wwwwwww",
+    "w wGw w", 
+    "wR R Rw", 
+    "w R Rww",
+    "wR R Rw", 
+    "wwRUR w",
+    "wwwwwww"
+],
+[
+    "wwwwwwwww",
+    "wR  w wRw", 
+    "wwwww www", 
+    "w U  RwGw",
+    "wwwww w w", 
+    "w R {   w",
+    "wwwwwwwww"
+],
+[
+    "wwwwwww ",
+    "w   w  w", 
+    "wUw X w ", 
+    " wowwwow",
+    "wwRwww w", 
+    "w[     w",
+    "wwRww  w",
+    "w]  wwww",
+    "wwwww   "
+],
 ]
 
 
-#     "w": Wall, # a sort of "ground thing thing"
+#     "w": Wall, # a sort of "thing ground thing"
 #     "U": You,
 #     "G": Goal,
 #     "R": Rock,
@@ -60,3 +81,5 @@ levels = [
 #     "]": NPC_Green,
 #     "{": NPC_Blue,
 #     "}": NPC_Purple
+#TODO "X": Door (opened by pressing all buttons)
+#TODO "o": Button
