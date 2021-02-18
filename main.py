@@ -32,13 +32,17 @@ levels = [
     "BBBBBBBBBB"
 ],
 [
-    "     ww",
-    ""
+    " www ",
+    "wwGww",
+    "w   w",
+    "wRRRw",
+    "w U w",
+    "wwwww",
 ]
 ]
 
 
-level = 0
+level = 2
 current_map = [list(row) for row in levels[level]]
 
 map_height = len(current_map)
@@ -49,6 +53,7 @@ letter_to_sprite_map = {
     "U": You,
     "G": Goal,
     "B": Boundary,
+    "R": Rock,
     " ": None,
 }
 
