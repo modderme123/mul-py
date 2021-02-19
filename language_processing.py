@@ -6,24 +6,25 @@ class ConfusedError(Exception):
         self.subject = subject
 
 class Word:
-    def __init__(self, image):
-        self.image = image
+    def __init__(self, image_name):
+        self.image_name = image_name
+        self.image = pygame.image.load(image_name)
 
 class Verb(Word): # move, interact, etc.
-    def __init__(self, image, function):
-        super().__init__(image)
+    def __init__(self, image_name, function):
+        super().__init__(image_name)
         self.function = function
 
     def __call__(self, map_state, subject, object, adverb = None):
         # This actually does the action refered to by the verb
-        if "orderable" in map_state[subject[0]][subject[1]]:
-            self.function(map_state, subject, object)
+        if map_state[subject[0]][subject[1]] is not None and "orderable" in map_state[subject[0]][subject[1]].attributes:
+            self.function(map_state, subject, object, adverb)
         else:
-            raise ConfusedError(subject)
+            raise ConfusedError(map_state[subject[0]][subject[1]])
 
 class Noun(Word): # everyone, yellow, rock, you, me
-    def __init__(self, image, thing=None):
-        super().__init__(image)
+    def __init__(self, image_name, thing=None):
+        super().__init__(image_name)
         self.thing = thing
     
     def get_location(self, map_state, subject_coords):
@@ -31,7 +32,7 @@ class Noun(Word): # everyone, yellow, rock, you, me
         # subject_coords is (row, col)
 
         # all row, col s
-        locations = list(product(range(map_state), map_state[0])).sort(lambda row, col: row-subject_coords[0]+col-subject_coords[1])
+        locations = sorted(product(range(len(map_state)), range(len(map_state[0]))), key=lambda x: x[0]-subject_coords[0]+x[1]-subject_coords[1])
         for row_num, col_num in locations:
             if type(map_state[row_num][col_num]) == self.thing:
                 return (row_num, col_num)
@@ -39,24 +40,24 @@ class Noun(Word): # everyone, yellow, rock, you, me
 
 
 class Adverb(Word): # up, down, left, right, underground, around
-    def __init__(self, image):
-        super().__init__(image)
+    def __init__(self, image_name):
+        super().__init__(image_name)
 
 class Letter(Word): # 
-    def __init__(self, image):
-        super().__init__(image)
+    def __init__(self, image_name):
+        super().__init__(image_name)
 
 class Address(Word): # please, hello, goodbye
-    def __init__(self, image):
-        super().__init__(image)
+    def __init__(self, image_name):
+        super().__init__(image_name)
 
 class Adjective(Word):
-    def __init__(self, image):
-        super().__init__(image)
+    def __init__(self, image_name):
+        super().__init__(image_name)
 
 def parse_sentence(sentence, map_state):
     try:
-        sentence = [words[word] for word in sentence.split(" ")]
+        sentence = [word_dict[word] for word in sentence.split(" ")]
         sentences = []
         current_sentence = []
         for word in sentence:
@@ -75,16 +76,16 @@ def parse_sentence(sentence, map_state):
 
 
 def evaluate(sentence, map_state):
-    # Takes in the words (objects) for a setence and runs the verb(s) code
+    # Takes in the word_dict (objects) for a setence and runs the verb(s) code
     #print(type(sentence))
     if len(sentence) == 0:
         return
     subject = sentence.pop(0)
     if type(subject) != Noun:
         raise ConfusedError()
-    subject_coords = subject.get_location(map_state, (0, 0)) # Should only be one subject, so (0, 0) should change anything
 
     while len(sentence)>0:
+        subject_coords = subject.get_location(map_state, (0, 0)) # Should only be one subject, so (0, 0) shouldn't change anything
         verb = sentence.pop(0)
         if type(verb) != Verb:
             raise ConfusedError(subject)
@@ -109,6 +110,9 @@ def evaluate(sentence, map_state):
             else:
                 sentence.insert(0, next)
                 verb(map_state, subject_coords, direct_object_coords)
+        else:
+            sentence.insert(0, next)
+            verb(map_state, subject_coords, None)
 
 
 def empty(obj):
@@ -154,56 +158,65 @@ def standard_move(map_state, subject, direct_object, adverb = None):
 
 tile_size = 90 # TODO: update if changed thank
 
-Hello = Address('Hello.png')
-Green = Noun('Green.png', NPC_Green)
-Move = Verb('Move.png', lambda map_state, subject, object, adverb: move_person(0, 1, map_state, type(map_state[subject[0]][subject[1]])))
+Hello = Address('images/Language/Adress/Hello.png')
+Green = Noun('images/Language/Colors/Green.png', NPC_Green)
+Move = Verb('images/Language/Modifiers/Move.png', lambda map_state, subject, object, adverb: move_person(1, 0, map_state, type(map_state[subject[0]][subject[1]])))
 
-Emphasize = Address("Emphasize.png")
-I_Am = Address("I am.png")
-Misunderstand = Address("Misunderstand.png")
+Emphasize = Address("images/Language/Adress/Emphasize.png")
+I_Am = Address("images/Language/Adress/Iam.png")
+Misunderstand = Address("images/Language/Adress/Misunderstand.png") # this needs a variable
 #Me = Noun("Me.png")
 #You = Noun("You.png")
-Goodbye = Address("Goodbye.png")
-Stop = Address("Stop.png")
-Color = Letter("Color.png")
-Negate = Letter("Negate.png")
-To = Adverb("To.png")
-Black = Noun("Black.png", None)
-Yellow = Noun("Yellow.png", NPC_Yellow)
-Blue = Noun("Blue.png", NPC_Blue)
-Gray = Noun("Gray.png", None)
-Orange = Noun("Orange.png", NPC_Orange)
-Purple = Noun("Purple.png", NPC_Purple)
-Red = Noun("Red.png", NPC_Red)
-White = Noun("White.png", None)
-Fire = Adjective("Fire.png")
-Ground = Adjective("Ground.png")
-Lightning = Adjective("Lightning.png")
-Nothing = Adjective("Nothing.png")
-Rock = Adjective("Rock.png")
-Sky = Adjective("Sky.png")
-Thing = Adjective("Thing.png")
-Underground = Adjective("Underground.png")
-Water = Adjective("Water.png")
-Wall = Adjective("Wall.png")
-Cloud = Adjective("Cloud.png")
-Rain = Adjective("Rain.png")
-Log = Noun("Log.png", Log)
-Go_Down = Verb("Go Down.png", lambda map_state, subject, object, adverb: move_person(1, 0, map_state, type(map_state[subject[0]][subject[1]])))
-Go_Up = Verb("Go Up.png", lambda map_state, subject, object, adverb: move_person(-1, 0, map_state, type(map_state[subject[0]][subject[1]])))
-Go_Left = Verb("Go Left.png", lambda map_state, subject, object, adverb: move_person(-1, 0, map_state, type(map_state[subject[0]][subject[1]])))
-"""Drop = Verb("Drop.png")
-Interact = Verb("Interact.png")
-Throw = Verb("Throw.png")
-Grab = Verb("Grab.png")
+Goodbye = Address("images/Language/Adress/Goodbye.png")
+Stop = Address("images/Language/Adress/Stop.png")
+Color = Letter("images/Language/Modifiers/Color.png")
+Negate = Letter("images/Language/Modifiers/Negate.png")
+To = Adverb("images/Language/MovementCommands/To.png")
+Black = Noun("images/Language/Colors/Black.png", None)
+Yellow = Noun("images/Language/Colors/Yellow.png", NPC_Yellow)
+Blue = Noun("images/Language/Colors/Blue.png", NPC_Blue)
+Gray = Noun("images/Language/Colors/Gray.png", None)
+Orange = Noun("images/Language/Colors/Orange.png", NPC_Orange)
+Purple = Noun("images/Language/Colors/Purple.png", NPC_Purple)
+Red = Noun("images/Language/Colors/Red.png", NPC_Red)
+White = Noun("images/Language/Colors/White.png", None)
+Fire = Adjective("images/Language/Things/Fire.png")
+Ground = Adjective("images/Language/Things/Ground.png")
+Lightning = Adjective("images/Language/Things/Lightning.png")
+Nothing = Adjective("images/Language/Things/Nothing.png")
+Rock = Adjective("images/Language/Things/Rock.png")
+Sky = Adjective("images/Language/Things/Sky.png")
+Thing = Adjective("images/Language/Things/Thing.png")
+Underground = Adjective("images/Language/Things/Underground.png")
+Water = Adjective("images/Language/Things/Water.png")
+Wall = Adjective("images/Language/Things/Wall.png")
+Cloud = Adjective("images/Language/Things/Cloud.png")
+Rain = Adjective("images/Language/Things/Rain.png")
+Log = Noun("images/Language/Things/Log.png", Log)
+Go_Down = Verb("images/Language/MovementCommands/GoDown.png", lambda map_state, subject, object, adverb: move_person(0, 1, map_state, type(map_state[subject[0]][subject[1]])))
+Go_Up = Verb("images/Language/MovementCommands/GoUp.png", lambda map_state, subject, object, adverb: move_person(0, -1, map_state, type(map_state[subject[0]][subject[1]])))
+Go_Left = Verb("images/Language/MovementCommands/GoLeft.png", lambda map_state, subject, object, adverb: move_person(-1, 0, map_state, type(map_state[subject[0]][subject[1]])))
+"""Drop = Verb("images/Language/MovementCommands/Drop.png")
+Interact = Verb("images/Language/MovementCommands/Interact.png")
+Throw = Verb("images/Language/MovementCommands/Throw.png")
+Grab = Verb("images/Language/MovementCommands/Grab.png")
 """
-words = {
+word_dict = {
     'h': Hello,
+    'hj': Goodbye,
+    'plk': Purple,
+    'pom': Blue,
     'pu': Green,
-    'm': Move
+    'plu': Orange,
+    'pln': Red,
+    'pl': Yellow,
+    'oupu': Log,
+    'm': Move,
+    'mn': Go_Down,
+    'mj': Go_Left,
+    'mk': Go_Up
 }
-"""words = {
-    'h': Hello,
+"""word_dict = {
     'j': Negate,
     'o': Thing,
     'm': Move,
@@ -218,16 +231,9 @@ words = {
     'io': I_Am,
     'ij': You,
     'mj': Stop,
-    'hj': Goodbye,
     'mo': To,
     'poj': Black,
-    'pom': Blue,
     'pou': Gray,
-    'pu': Green,
-    'plu': Orange,
-    'pln': Red,
-    'pl': Yellow,
-    'plk': Purple,
     'po': White,
     'lk': Lightning,
     'oj': Nothing,
@@ -236,10 +242,6 @@ words = {
     'ouo': Wall,
     'omk': Cloud,
     'omom': Rain,
-    'oupu': Log,
-    'mn': Go_Down,
-    'mj': Go_Left,
-    'mk': Go_Up,
     'gj': Drop,
     'gm': Interact,
     'gjm': Throw

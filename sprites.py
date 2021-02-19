@@ -58,10 +58,11 @@ class generic_sprite(pygame.sprite.Sprite):
         pass
 
     def be_confused(self):
-        confusion = Confusion(x, y-round(self.scale*1.5), self.sprite_group, round(self.scale*1.5))
+        confusion = Confusion(self.rect.left, self.rect.top-round(self.scale*1.5), self.sprite_group, round(self.scale*1.5))
 
 class Confusion(pygame.sprite.Sprite):
     def __init__(self, x, y, sprite_group, scale):
+        super().__init__()
         image_names = ["images/thinking/thinking_1.png","images/thinking/thinking_2.png"]
         self.images = [pygame.image.load(image_name) for image_name in image_names]
         self.images = [pygame.transform.scale(image,(scale,scale)) for image in self.images]
@@ -78,7 +79,7 @@ class Confusion(pygame.sprite.Sprite):
         self.animation_frame+=0.2
         self.image = self.images[math.floor(self.animation_frame%len(self.images))]
 
-        if self.animation_frame == 1000:
+        if self.animation_frame >= 10:
             self.kill()
 
     def update(self):

@@ -51,7 +51,14 @@ levels = [
     "wwwww www", 
     "w U  RwGw",
     "wwwww w w", 
-    "w R {   w",
+    "w R (   w",
+    "wwwwwwwww"
+],
+[
+    "wwwwwwwww",
+    "w  R w Gw", 
+    "wU w    w",
+    "ww R w )w",
     "wwwwwwwww"
 ],
 [
@@ -60,9 +67,9 @@ levels = [
     "wUw X w ", 
     " wowwwow",
     "wwRwww w", 
-    "w[     w",
-    "wwRww  w",
-    "w]  wwww",
+    "w{o    w",
+    "wwRww ow",
+    "w}  wwww",
     "wwwww   "
 ],
 ]
