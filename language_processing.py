@@ -1,5 +1,5 @@
 from sprites import * 
-from iter_tools import *
+from itertools import *
 # Who's doing it, verb, to what
 class ConfusedError(Exception):
     def __init__(self):
@@ -16,7 +16,10 @@ class Verb(Word): # move, interact, etc.
 
     def __call__(self, map_state, subject, object, adverb = None):
         # This actually does the action refered to by the verb
-        self.function(map_state, subject, object)
+        if "orderable" in map_state[subject[0]][subject[1]]:
+            self.function(map_state, subject, object)
+        else:
+            raise ConfusedError
 
 class Noun(Word): # everyone, yellow, rock, you, me
     def __init__(self, image, thing=None):
@@ -90,13 +93,16 @@ def evaluate(sentence, map_state):
             verb(map_state, subject_coords, None)
             continue
 
-        # TODO: Add checks to look for end of sentence
 
         next = sentence.pop(0)
         if type(next) == Adverb:
             verb(map_state, subject, None, next)
         elif type(next) == Noun:
             direct_object_coords = next.get_location(map_state, subject_coords)
+            if len(sentence) == 0:
+                verb(map_state, subject_coords, direct_object_coords)
+                continue
+
             next = sentence.pop(0)
             if type(next) == Adverb:
                 verb(map_state, subject_coords, direct_object_coords, next)
@@ -150,7 +156,7 @@ tile_size = 90 # TODO: update if changed thank
 
 Hello = Address('Hello.png')
 Green = Noun('Green.png', NPC_Green)
-Move = Verb('Move.png', move_thing)
+Move = Verb('Move.png', lambda map_state, subject, object, adverb: move_person(0, 1, map_state, type(map_state[subject[0]][subject[1]])))
 
 Emphasize = Address("Emphasize.png")
 I_Am = Address("I am.png")
@@ -183,14 +189,14 @@ Wall = Adjective("Wall.png")
 Cloud = Adjective("Cloud.png")
 Rain = Adjective("Rain.png")
 Log = Noun("Log.png",)
-Go_Down = Verb("Go Down.png", move_thing)
-Go_Up = Verb("Go Up.png", move_thing)
-Go_Left = Verb("Go Left.png", move_thing)
-Drop = Verb("Drop.png")
+Go_Down = Verb("Go Down.png", lambda map_state, subject, object, adverb: move_person(1, 0, map_state, type(map_state[subject[0]][subject[1]])))
+Go_Up = Verb("Go Up.png", lambda map_state, subject, object, adverb: move_person(-1, 0, map_state, type(map_state[subject[0]][subject[1]])))
+Go_Left = Verb("Go Left.png", lambda map_state, subject, object, adverb: move_person(-1, 0, map_state, type(map_state[subject[0]][subject[1]])))
+"""Drop = Verb("Drop.png")
 Interact = Verb("Interact.png")
 Throw = Verb("Throw.png")
 Grab = Verb("Grab.png")
-
+"""
 words = {
     'h': Hello,
     'pu': Green,
