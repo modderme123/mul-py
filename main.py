@@ -18,7 +18,7 @@ background = pygame.Surface(screen.get_size())
 background.fill((255, 255, 255))
 screen.blit(background, (0, 0))
 
-level = 4
+level = 8
 current_map = [list(row) for row in levels[level]]
 
 map_height = len(current_map)
@@ -31,42 +31,33 @@ letter_to_sprite_map = {
     "U": You,
     "G": Goal,
     "R": Rock,
+    "X": Door,
+    "o": Button,
     " ": None,
     "1": Sign1,
     "2": Sign2,
-    "(": NPC_Green,  #NPC_Red,
-    ")": NPC_Green,  #NPC_Orange,
-    "[": NPC_Green,  #NPC_Yellow,
+    "(": NPC_Red,
+    ")": NPC_Orange,
+    "[": NPC_Yellow,
     "]": NPC_Green,
-    "{": NPC_Green,  #NPC_Blue,
-    "}": NPC_Green,  #NPC_Purple
+    "{": NPC_Blue,
+    "}": NPC_Purple,
 }
 
 sprites = pygame.sprite.Group()
+flat_sprites = pygame.sprite.Group()
 flag = True
 player = None
 
 
 def next_level():
-    global level, current_map, map_width, map_height, mapoffset, gamemode, typedphrase, cursorlocation, sprites, sprite_map
+    global level, levels
     level += 1
     level %= len(levels)
-    current_map = [list(row) for row in levels[level]]
-    map_height = len(current_map)
-    map_width = len(current_map[0])
-    mapoffset = [(width - (map_width * tile_size)) / 2,
-                 (height - (map_height * tile_size)) / 2]
-
-    gamemode = "Moving"
-    typedphrase = []
-    cursorlocation = 0
-
-    sprites = pygame.sprite.Group()
-    sprite_map = draw_board(current_map)
-
+    restart_level()
 
 def restart_level():
-    global level, current_map, map_width, map_height, mapoffset, gamemode, typedphrase, cursorlocation, sprites, sprite_map
+    global doors, level, current_map, map_width, map_height, mapoffset, gamemode, typedphrase, cursorlocation, sprites, flat_sprites, sprite_map
     current_map = [list(row) for row in levels[level]]
     map_height = len(current_map)
     map_width = len(current_map[0])
@@ -77,7 +68,9 @@ def restart_level():
     typedphrase = []
     cursorlocation = 0
 
+    doors = []
     sprites = pygame.sprite.Group()
+    flat_sprites = pygame.sprite.Group()
     sprite_map = draw_board(current_map)
 
 
@@ -98,7 +91,9 @@ def draw_board(level):
     return new_board
 
 
+doors = []
 def addSprite(level, char, x, y):
+    
     if char == "w":
         #print(x,y)
         up = (level[y - 1][x] if y > 0 else "?")
@@ -107,12 +102,23 @@ def addSprite(level, char, x, y):
         left = (level[y][x - 1] if x > 0 else "?")
         sprite = letter_to_sprite_map[char](screen, sprites, tile_size, [up, right, down, left])
     elif char == "G":
-        sprite = letter_to_sprite_map[char](screen, sprites, tile_size, next_level)
+        sprite = letter_to_sprite_map[char](screen, flat_sprites, tile_size, next_level)
+    elif char == "X":
+        number_of_buttons = "".join(["".join(x) for x in level]).count("o")
+        sprite = letter_to_sprite_map[char](screen, flat_sprites, tile_size, number_of_buttons)
+        doors.append(sprite)
+    elif char == "o":
+        sprite = letter_to_sprite_map[char](screen, flat_sprites, tile_size, doors)
     else:
-        sprite = letter_to_sprite_map[char](screen, sprites, tile_size)
-    sprites.add(sprite)
+        if 'flattenable' in letter_to_sprite_map[char].attributes or 'flat' in letter_to_sprite_map[char].attributes:
+            sprite = letter_to_sprite_map[char](screen, flat_sprites, tile_size)
+        else:
+            sprite = letter_to_sprite_map[char](screen, sprites, tile_size)
+
     sprite.draw_sprite((x * tile_size) + mapoffset[0],
                        (y * tile_size) + mapoffset[1])
+
+            
     return sprite
 
 
@@ -133,7 +139,8 @@ def update_text_sprites(phrase):
         else:
             words.append(tempword)
             tempword = ""
-    words.append(tempword)
+    if len(tempword)>0:
+        words.append(tempword)
     for word in words:
         if word in word_dict:
             text_sprites.append(word_dict[word])
@@ -147,6 +154,7 @@ typedphrase = []
 text_sprites = []
 cursorlocation = 0
 textsize = 50
+displayhelp = False
 
 legitcharacters = {
     pygame.K_j: "j",
@@ -196,6 +204,7 @@ while flag:
             elif event.key == pygame.K_RETURN:
                 if gamemode == "Moving":
                     gamemode = "Typing"
+                    update_text_sprites(typedphrase)
                 elif gamemode == "Typing":
                     try:
                         parse_sentence("".join(typedphrase), sprite_map)
@@ -211,14 +220,18 @@ while flag:
             elif event.key == pygame.K_r:
                 if gamemode == "Moving":
                     restart_level()
+            elif event.key == pygame.K_SPACE:
+                if gamemode == "Moving":
+                    displayhelp = not displayhelp
             # elif event.key == pygame.K_q:
             #     parse_sentence(typedphrase, sprite_map)
             #     parse_sentence("h pu m", sprite_map)
-            elif event.key == pygame.K_DELETE:
+            elif event.key == pygame.K_DELETE or event.key == pygame.K_BACKSPACE:
                 if gamemode == "Typing":
                     if cursorlocation > 0:
                         cursorlocation -= 1
                         typedphrase = typedphrase[:cursorlocation] + typedphrase[cursorlocation + 1:]
+                        
                         update_text_sprites(typedphrase)
 
             if gamemode == "Typing":
@@ -230,8 +243,11 @@ while flag:
 
 
     screen.blit(background, (0, 0))
+    flat_sprites.clear(screen, background)
     sprites.clear(screen, background)
+    flat_sprites.update()
     sprites.update()
+    flat_sprites.draw(screen)
     sprites.draw(screen)
     if gamemode == "Typing":
         draw_text(screen)

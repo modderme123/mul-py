@@ -6,13 +6,14 @@ class ConfusedError(Exception):
         self.subject = subject
 
 class Word:
-    def __init__(self, image_name):
+    def __init__(self, image_name, my_color = [0,0,0]):
         self.image_name = image_name
         self.image = pygame.image.load(image_name)
+        self.image.fill(my_color,special_flags = pygame.BLEND_ADD)
 
 class Verb(Word): # move, interact, etc.
-    def __init__(self, image_name, function):
-        super().__init__(image_name)
+    def __init__(self, image_name, function, my_color = [0,0,0]):
+        super().__init__(image_name,my_color=my_color)
         self.function = function
 
     def __call__(self, map_state, subject, object, adverb = None):
@@ -23,8 +24,8 @@ class Verb(Word): # move, interact, etc.
             raise ConfusedError(map_state[subject[0]][subject[1]])
 
 class Noun(Word): # everyone, yellow, rock, you, me
-    def __init__(self, image_name, thing=None):
-        super().__init__(image_name)
+    def __init__(self, image_name, thing=None, my_color = [0,0,0]):
+        super().__init__(image_name,my_color=my_color)
         self.thing = thing
     
     def get_location(self, map_state, subject_coords):
@@ -40,20 +41,20 @@ class Noun(Word): # everyone, yellow, rock, you, me
 
 
 class Adverb(Word): # up, down, left, right, underground, around
-    def __init__(self, image_name):
-        super().__init__(image_name)
+    def __init__(self, image_name, my_color = [0,0,0]):
+        super().__init__(image_name, my_color=my_color)
 
 class Letter(Word): # 
-    def __init__(self, image_name):
-        super().__init__(image_name)
+    def __init__(self, image_name, my_color = [0,0,0]):
+        super().__init__(image_name, my_color=my_color)
 
 class Address(Word): # please, hello, goodbye
-    def __init__(self, image_name):
-        super().__init__(image_name)
+    def __init__(self, image_name, my_color = [0,0,0]):
+        super().__init__(image_name, my_color=my_color)
 
 class Adjective(Word):
-    def __init__(self, image_name):
-        super().__init__(image_name)
+    def __init__(self, image_name, my_color = [0,0,0]):
+        super().__init__(image_name, my_color=my_color)
 
 def parse_sentence(sentence, map_state):
     try:
@@ -152,100 +153,62 @@ def move_person(dsquare_x, dsquare_y, map, person):
         if not flag:
             break
 
+
+
 def standard_move(map_state, subject, direct_object, adverb = None):
     # Takes the coords for objects
     move_person(0, 1, map_state, type(map_state[subject[0]][subject[1]]))
 
 tile_size = 90 # TODO: update if changed thank
 
-Hello = Address('images/Language/Adress/Hello.png')
-Green = Noun('images/Language/Colors/Green.png', NPC_Green)
-Move = Verb('images/Language/Modifiers/Move.png', lambda map_state, subject, object, adverb: move_person(1, 0, map_state, type(map_state[subject[0]][subject[1]])))
-
-Emphasize = Address("images/Language/Adress/Emphasize.png")
-I_Am = Address("images/Language/Adress/Iam.png")
 Misunderstand = Address("images/Language/Adress/Misunderstand.png") # this needs a variable
 #Me = Noun("Me.png")
 #You = Noun("You.png")
-Goodbye = Address("images/Language/Adress/Goodbye.png")
-Stop = Address("images/Language/Adress/Stop.png")
-Color = Letter("images/Language/Modifiers/Color.png")
-Negate = Letter("images/Language/Modifiers/Negate.png")
-To = Adverb("images/Language/MovementCommands/To.png")
-Black = Noun("images/Language/Colors/Black.png", None)
-Yellow = Noun("images/Language/Colors/Yellow.png", NPC_Yellow)
-Blue = Noun("images/Language/Colors/Blue.png", NPC_Blue)
-Gray = Noun("images/Language/Colors/Gray.png", None)
-Orange = Noun("images/Language/Colors/Orange.png", NPC_Orange)
-Purple = Noun("images/Language/Colors/Purple.png", NPC_Purple)
-Red = Noun("images/Language/Colors/Red.png", NPC_Red)
-White = Noun("images/Language/Colors/White.png", None)
-Fire = Adjective("images/Language/Things/Fire.png")
-Ground = Adjective("images/Language/Things/Ground.png")
-Lightning = Adjective("images/Language/Things/Lightning.png")
-Nothing = Adjective("images/Language/Things/Nothing.png")
-Rock = Adjective("images/Language/Things/Rock.png")
-Sky = Adjective("images/Language/Things/Sky.png")
-Thing = Adjective("images/Language/Things/Thing.png")
-Underground = Adjective("images/Language/Things/Underground.png")
-Water = Adjective("images/Language/Things/Water.png")
-Wall = Adjective("images/Language/Things/Wall.png")
-Cloud = Adjective("images/Language/Things/Cloud.png")
-Rain = Adjective("images/Language/Things/Rain.png")
-Log = Noun("images/Language/Things/Log.png", Log)
-Go_Down = Verb("images/Language/MovementCommands/GoDown.png", lambda map_state, subject, object, adverb: move_person(0, 1, map_state, type(map_state[subject[0]][subject[1]])))
-Go_Up = Verb("images/Language/MovementCommands/GoUp.png", lambda map_state, subject, object, adverb: move_person(0, -1, map_state, type(map_state[subject[0]][subject[1]])))
-Go_Left = Verb("images/Language/MovementCommands/GoLeft.png", lambda map_state, subject, object, adverb: move_person(-1, 0, map_state, type(map_state[subject[0]][subject[1]])))
+
 """Drop = Verb("images/Language/MovementCommands/Drop.png")
 Interact = Verb("images/Language/MovementCommands/Interact.png")
 Throw = Verb("images/Language/MovementCommands/Throw.png")
 Grab = Verb("images/Language/MovementCommands/Grab.png")
 """
 word_dict = {
-    'h': Hello,
-    'hj': Goodbye,
-    'plk': Purple,
-    'pom': Blue,
-    'pu': Green,
-    'plu': Orange,
-    'pln': Red,
-    'pl': Yellow,
-    'oupu': Log,
-    'm': Move,
-    'mn': Go_Down,
-    'mj': Go_Left,
-    'mk': Go_Up
+    'h': Address('images/Language/Adress/Hello.png'),
+    'hj': Address("images/Language/Adress/Goodbye.png"),
+    'plk': Noun("images/Language/Colors/Purple.png", NPC_Purple, [83,52,128]),
+    'pom': Noun("images/Language/Colors/Blue.png", NPC_Blue, [55,81,139]),
+    'pu': Noun('images/Language/Colors/Green.png', NPC_Green, [51,114,48]),
+    'plu': Noun("images/Language/Colors/Orange.png", NPC_Orange, [144,73,41]),
+    'pln': Noun("images/Language/Colors/Red.png",NPC_Red,  [88,0,0]),
+    'pl': Noun("images/Language/Colors/Yellow.png",NPC_Yellow,  [143,131,54]),
+    'oupu': Noun("images/Language/Things/Log.png", Log),
+    'm': Verb('images/Language/Modifiers/Move.png', lambda map_state, subject, object, adverb: move_person(1, 0, map_state, type(map_state[subject[0]][subject[1]]))),
+    'mn': Verb("images/Language/MovementCommands/GoDown.png", lambda map_state, subject, object, adverb: move_person(0, 1, map_state, type(map_state[subject[0]][subject[1]]))),
+    'mj': Verb("images/Language/MovementCommands/GoLeft.png", lambda map_state, subject, object, adverb: move_person(-1, 0, map_state, type(map_state[subject[0]][subject[1]]))),
+    'mk': Verb("images/Language/MovementCommands/GoUp.png", lambda map_state, subject, object, adverb: move_person(0, -1, map_state, type(map_state[subject[0]][subject[1]]))),
+    'j': Letter("images/Language/Modifiers/Negate.png"),
+    'o': Adjective("images/Language/Things/Thing.png"),
+    'p': Letter("images/Language/Modifiers/Color.png"),
+#    'i': Me,
+    'u': Adjective("images/Language/Things/Ground.png"),
+    'n': Adjective("images/Language/Things/Underground.png"),
+    'k': Adjective("images/Language/Things/Sky.png"),
+#    'g': Grab,
+    'l': Adjective("images/Language/Things/Fire.png"),
+    'jj': Address("images/Language/Adress/Emphasize.png"),
+    'io': Address("images/Language/Adress/Iam.png"),
+#    'ij': You,
+#    'mjj': Address("images/Language/Adress/Stop.png"),
+    'mo': Adverb("images/Language/Modifiers/To.png"),
+    'poj': Noun("images/Language/Colors/Black.png", None),
+    'pou': Noun("images/Language/Colors/Gray.png", None),
+    'po': Noun("images/Language/Colors/White.png", None),
+    'lk': Adjective("images/Language/Things/Lightning.png"),
+    'oj': Adjective("images/Language/Things/Nothing.png"),
+    'ou': Adjective("images/Language/Things/Rock.png"),
+    'om': Adjective("images/Language/Things/Water.png"),
+    'ouo': Adjective("images/Language/Things/Wall.png"),
+    'omk': Adjective("images/Language/Things/Cloud.png"),
+    'omom': Adjective("images/Language/Things/Rain.png"),
+#    'gj': Drop,
+#    'gm': Interact,
+#    'gjm': Throw
 }
-"""word_dict = {
-    'j': Negate,
-    'o': Thing,
-    'm': Move,
-    'p': Color,
-    'i': Me,
-    'u': Ground,
-    'n': Underground,
-    'k': Sky,
-    'g': Grab,
-    'l': Fire,
-    'jj': Emphasize,
-    'io': I_Am,
-    'ij': You,
-    'mj': Stop,
-    'mo': To,
-    'poj': Black,
-    'pou': Gray,
-    'po': White,
-    'lk': Lightning,
-    'oj': Nothing,
-    'ou': Rock,
-    'om': Water,
-    'ouo': Wall,
-    'omk': Cloud,
-    'omom': Rain,
-    'gj': Drop,
-    'gm': Interact,
-    'gjm': Throw
-}"""
-
-
-

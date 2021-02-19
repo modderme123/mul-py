@@ -52,9 +52,14 @@ class generic_sprite(pygame.sprite.Sprite):
     def stop_standing(self):
         temp = self.standing_on
         self.standing_on = None
+        if temp is not None:
+            temp.becomeunstood(self)
         return temp
 
     def becomestood(self,stander):
+        pass
+    
+    def becomeunstood(self,unstander):
         pass
 
     def be_confused(self):
@@ -177,3 +182,49 @@ class NPC_Purple(NPC):
     attributes = ['orderable','purple']
     def __init__(self, screen, sprite_group, scale):
         super().__init__(["images/purple/purple_1.png","images/purple/purple_2.png"], screen, sprite_group, scale)
+
+class Button(generic_sprite):
+    attributes = ['flat']
+    def __init__(self, screen, sprite_group, scale, doors):
+        self.doors = doors
+        super().__init__(["images/objects/button_up.png","images/objects/button_down.png"], screen, sprite_group, scale)
+
+    def becomestood(self, stander):
+        self.image = self.images[1]
+        for door in self.doors:
+            door.receive_button_press()
+        return super().becomestood(stander)
+    
+    def becomeunstood(self, unstander):
+        self.image = self.images[0]
+        for door in self.doors:
+            door.remove_button_press()
+
+        return super().becomestood(unstander)
+
+    def update(self):
+        pass
+
+class Door(generic_sprite):
+    attributes = ['flattenable']
+    def __init__(self, screen, sprite_group, scale, number_of_buttons):
+        super().__init__(["images/objects/door_up.png","images/objects/door_down.png"], screen, sprite_group, scale)
+        self.number_of_buttons = number_of_buttons
+        self.buttons_pressed = 0
+
+    def receive_button_press(self):
+        self.buttons_pressed += 1
+        if self.buttons_pressed >= self.number_of_buttons:
+            Door.attributes = ["flat"]
+            self.image = self.images[1]
+
+
+    def remove_button_press(self):
+        self.buttons_pressed -= 1
+        if self.buttons_pressed < self.number_of_buttons:
+            Door.attributes = []
+            self.image = self.images[0]
+    
+    def update(self):
+        pass
+    
