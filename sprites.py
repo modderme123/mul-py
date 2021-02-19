@@ -17,7 +17,9 @@ class generic_sprite(pygame.sprite.Sprite):
         self.animation_frame = 0
         self.standing_on = None
         #self.scale = scale
-        sprite_group.add(self)
+        self.sprite_group = sprite_group
+        self.sprite_group.add(self)
+        self.scale = scale
 
     def draw_sprite(self, x, y):
         """
@@ -55,7 +57,32 @@ class generic_sprite(pygame.sprite.Sprite):
     def becomestood(self,stander):
         pass
 
+    def be_confused(self):
+        confusion = Confusion(x, y-round(self.scale*1.5), self.sprite_group, round(self.scale*1.5))
 
+class Confusion(pygame.sprite.Sprite):
+    def __init__(self, x, y, sprite_group, scale):
+        image_names = ["images/thinking/thinking_1.png","images/thinking/thinking_2.png"]
+        self.images = [pygame.image.load(image_name) for image_name in image_names]
+        self.images = [pygame.transform.scale(image,(scale,scale)) for image in self.images]
+        self.animation_frame = 0
+
+        self.image = self.images[0]
+        self.rect = self.image.get_rect()
+        self.rect.left = x
+        self.rect.top = y
+
+        sprite_group.add(self)
+
+    def nextframe(self):
+        self.animation_frame+=0.2
+        self.image = self.images[math.floor(self.animation_frame%len(self.images))]
+
+        if self.animation_frame == 1000:
+            self.kill()
+
+    def update(self):
+        self.nextframe()
 
 class Wall(generic_sprite):
 

@@ -2,8 +2,8 @@ from sprites import *
 from itertools import *
 # Who's doing it, verb, to what
 class ConfusedError(Exception):
-    def __init__(self):
-        pass
+    def __init__(self, subject = None):
+        self.subject = subject
 
 class Word:
     def __init__(self, image):
@@ -19,7 +19,7 @@ class Verb(Word): # move, interact, etc.
         if "orderable" in map_state[subject[0]][subject[1]]:
             self.function(map_state, subject, object)
         else:
-            raise ConfusedError
+            raise ConfusedError(subject)
 
 class Noun(Word): # everyone, yellow, rock, you, me
     def __init__(self, image, thing=None):
@@ -35,7 +35,7 @@ class Noun(Word): # everyone, yellow, rock, you, me
         for row_num, col_num in locations:
             if type(map_state[row_num][col_num]) == self.thing:
                 return (row_num, col_num)
-        raise ConfusedError
+        raise ConfusedError(map_state[subject_coords[0]][subject_coords[1]])
 
 
 class Adverb(Word): # up, down, left, right, underground, around
@@ -71,7 +71,7 @@ def parse_sentence(sentence, map_state):
             evaluate(phrase, map_state)
 
     except KeyError:
-        raise ConfusedError
+        raise ConfusedError()
 
 
 def evaluate(sentence, map_state):
@@ -81,13 +81,13 @@ def evaluate(sentence, map_state):
         return
     subject = sentence.pop(0)
     if type(subject) != Noun:
-        raise ConfusedError
+        raise ConfusedError()
     subject_coords = subject.get_location(map_state, (0, 0)) # Should only be one subject, so (0, 0) should change anything
 
     while len(sentence)>0:
         verb = sentence.pop(0)
         if type(verb) != Verb:
-            raise ConfusedError
+            raise ConfusedError(subject)
         
         if len(sentence) == 0:
             verb(map_state, subject_coords, None)
@@ -148,7 +148,7 @@ def move_person(dsquare_x, dsquare_y, map, person):
         if not flag:
             break
 
-def move_thing(map_state, subject, direct_object, adverb = None):
+def standard_move(map_state, subject, direct_object, adverb = None):
     # Takes the coords for objects
     move_person(0, 1, map_state, type(map_state[subject[0]][subject[1]]))
 
@@ -188,7 +188,7 @@ Water = Adjective("Water.png")
 Wall = Adjective("Wall.png")
 Cloud = Adjective("Cloud.png")
 Rain = Adjective("Rain.png")
-Log = Noun("Log.png",)
+Log = Noun("Log.png", Log)
 Go_Down = Verb("Go Down.png", lambda map_state, subject, object, adverb: move_person(1, 0, map_state, type(map_state[subject[0]][subject[1]])))
 Go_Up = Verb("Go Up.png", lambda map_state, subject, object, adverb: move_person(-1, 0, map_state, type(map_state[subject[0]][subject[1]])))
 Go_Left = Verb("Go Left.png", lambda map_state, subject, object, adverb: move_person(-1, 0, map_state, type(map_state[subject[0]][subject[1]])))
