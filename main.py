@@ -160,6 +160,13 @@ while flag:
                 if gamemode == "Moving":
                     gamemode = "Typing"
                 elif gamemode == "Typing":
+                    try:
+                        parse_sentence(sprite_map, typedphrase) 
+                    except ConfusedError as err:
+                        if err.subject == None:
+                            pass # Eventually should be changed to make the player confused
+                        else
+                            err.subject.be_confused()
                     gamemode = "Moving"
                     #language_processing(sayphrase)
             elif event.key == pygame.K_r:
@@ -177,13 +184,6 @@ while flag:
                 if event.key in legitcharacters:
                     typedphrase.insert(cursorlocation,legitcharacters[legitcharacters])
                     cursorlocation+=1
-            # try:
-            #     parse_sentence(sprite_map, typedphrase) 
-            # except ConfusedError as err:
-            #     if err.subject == None:
-            #         pass # Eventually should be changed to make the player confused
-            #     else
-            #         err.subject.be_confused()
     
     screen.blit(background, (0, 0))
     sprites.clear(screen, background)
