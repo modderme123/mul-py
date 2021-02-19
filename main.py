@@ -18,7 +18,7 @@ background = pygame.Surface(screen.get_size())
 background.fill((255, 255, 255))
 screen.blit(background, (0, 0))
 
-level = 8
+level = 0
 current_map = [list(row) for row in levels[level]]
 
 map_height = len(current_map)
